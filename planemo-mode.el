@@ -172,8 +172,22 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--matchtag-back (curr-word)
   "Find the nearest previous start tag that would complement CURR-WORD."
-  ;; TODO: Implement this
-  (ignore curr-word))
+  (let* ((assoc-map '(("end for" . "for")
+                      ("end if" . "if")))
+                      ;;("for" . "end for")
+                      ;;("if" . "end if")))
+         (wanted-tag (alist-get curr-word assoc-map nil nil 'string=))
+         (result nil))
+    ;; - here we stack tags as we find them and pop them off
+    ;;   when consecutive tags pair up
+    ;;(poplist (list curr-word)))
+    (save-excursion
+      (while (not
+              (-let (((align tag nl) (planemo--jump-prevtag)))
+                ;; exit condition
+                (if (string= tag wanted-tag)
+                    (setq result (list align tag nl)))))))
+    result))
 
 ;; BEGIN: Indentation outcomes
 (defun planemo--ind-alignwith (prev-align)
@@ -184,7 +198,9 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--ind-findprevmatch (curr-word)
   "Find a previous starting tag to complement CURR-WORD."
   (message "outcome B: End word. Looking for matching Start word")
-  (indent-line-to (planemo--matchtag-back curr-word)))
+  (-let (((align tag) (planemo--matchtag-back curr-word)))
+    (if align
+        (indent-line-to align))))
 
 
 (defvar cycle-indents nil
