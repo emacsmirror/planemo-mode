@@ -154,13 +154,17 @@ Must complement the ``planemo--start-tags''")
   (let* ((fword (save-excursion
                  (beginning-of-line)
                  (string-trim
-                  (buffer-substring-no-properties
-                   (point) (progn (forward-word) (point))))))
-         (start1 (substring fword nil 1))
-         (start2 (substring fword nil 2)))
-    (cond ((equal "##" start2) "##")
-          ((equal "#" start1) (substring (planemo--get-forwtag) 1))
-          (t fword)))) ;; always end on an fword
+                  (car
+                   (split-string
+                    (buffer-substring-no-properties
+                     (point) (progn (forward-word) (point)))
+                    "\n"))))))
+    (if (equal "" fword)
+        "     "  ;; return blank tag
+      (cond ((equal "##" (substring fword nil 2)) "##")
+            ((equal "#" (substring fword nil 1))
+             (substring (planemo--get-forwtag) 1))
+            (t fword)))))
 
 (defun planemo--matchtag-back (curr-word)
   "Find the nearest previous start tag that would complement CURR-WORD."
