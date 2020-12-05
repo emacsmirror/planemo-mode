@@ -54,7 +54,7 @@
   "Bash operations commonly found in the XML."
   :type 'list
   :group 'planemo)
-  
+
 (defconst planemo--start-tags '("if" "for")
   "Defines the Cheetah tags for beginning nested indentation.")
 
@@ -77,6 +77,12 @@ Must complement the ``planemo--start-tags''")
 (defconst planemo--pair-tags
   (append planemo--start-tags planemo--end-tags)
   "All start and end tags.")
+
+(defconst planemo--most-tags
+  (append planemo--start-tags planemo--end-tags
+          planemo--middle-tags)
+  "Tags with the same alignment.")
+
 
 (define-derived-mode planemo-mode nxml-mode "Pl[XML|Cheetah]"
   "Major mode for editing Galaxy XML files."
@@ -211,13 +217,11 @@ Must complement the ``planemo--start-tags''")
 (defun planemo-indent-region (start end)
   "Indent the current region."
   (interactive (list (region-beginning) (region-end)))
-  ;;(save-excursion
+  (save-excursion
     (goto-char start)
     (while (< (point) end)
       (planemo-indent-line)
-      (forward-line 1))
-    ;;)
-    )
+      (forward-line 1))))
 
 ;;;###autoload
 (defun planemo-indent-line ()
@@ -238,7 +242,7 @@ Must complement the ``planemo--start-tags''")
                                 (save-excursion
                                   (previous-line)
                                   (member (planemo--get-fwot)
-                                          planemo--all-tags)))))
+                                          planemo--most-tags)))))
         (cond
          (curr-xmlp (nxml-indent-line)) ;; <xmltag> : use nxml-indent
          (previous-hash                 ;; previous tag exists
@@ -283,7 +287,8 @@ Must complement the ``planemo--start-tags''")
                            (prev-endp (planemo--ind-alignwith prev-align))
                            ;; * and "set" : align to previous line
                            (t (planemo--ind-prevline))))
-                         (t (error "Umm"))))
+                         ;; "#set"
+                         (t (planemo--ind-prevline))))
                   ;; !!At this point curr-word is not a hash word!!
                   ;; ["tag"] but the last line is not one: align to it.
                   ((not prev-ldiff1-p) (planemo--ind-prevline))
