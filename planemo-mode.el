@@ -184,8 +184,17 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--ind-nestunder (prev-align)
   "Nest the current line under PREV-ALIGN."
+(defvar cycle-indents nil
+  "Toggle for nesting under.")
+
+(defun planemo--ind-nestunder (prev-align cycle)
+  "Nest the current line under PREV-ALIGN.  If CYCLE is t, then repeated calls toggle the indent."
   (message "outcome NestUnder: Nest under previous hash")
-  (planemo--ind-performalign (+ prev-align 4)))
+  (if cycle
+      (if (setq cycle-indents (not cycle-indents)) ;; toggle
+          (indent-line-to (+ prev-align 4))
+        (indent-line-to prev-align))
+    (indent-line-to (+ prev-align 4))))
 
 (defun planemo--ind-nothing ()
   "Do nothing to the current line."
@@ -268,7 +277,9 @@ Must complement the ``planemo--start-tags''")
                   ;; ["end for"] followed by "blah" : align to it
                   (prev-endp (planemo--ind-alignwith prev-align))
                   ;; ["for"] followed by "blah" : nest under it
-                  (prev-startp (planemo--ind-nestunder prev-align))
+                  ((or prev-startp prev-middp)
+                   ;; Here we cycle the first line under the hash
+                   (planemo--ind-nestunder prev-align t))
                   ;; no previous tag : align to previous line or 0
                   (t (planemo--ind-prevline)))
             ))
