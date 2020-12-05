@@ -198,7 +198,7 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--ind-findprevmatch (curr-word)
   "Find a previous starting tag to complement CURR-WORD."
   (message "outcome B: End word. Looking for matching Start word")
-  (-let (((align tag) (planemo--matchtag-back curr-word)))
+  (-let (((align _tag) (planemo--matchtag-back curr-word)))
     (if align
         (indent-line-to align))))
 
@@ -206,8 +206,8 @@ Must complement the ``planemo--start-tags''")
 (defvar cycle-indents nil
   "Toggle for nesting under.")
 
-(defun planemo--ind-nestunder (prev-align cycle)
-  "Nest the current line under PREV-ALIGN.  If CYCLE is t, then repeated calls toggle the indent."
+(defun planemo--ind-nestunder (prev-align &optional cycle)
+  "Nest the current line under PREV-ALIGN.  If CYCLE is t, then a repeated call will toggle the indent."
   (message "outcome NestUnder: Nest under previous hash")
   (if cycle
       (if (setq cycle-indents (not cycle-indents)) ;; toggle
@@ -227,7 +227,7 @@ Must complement the ``planemo--start-tags''")
 
 ;;;###autoload
 (defun planemo-indent-region (start end)
-  "Indent the current region."
+  "Indent the current region flanked by START and END positions."
   (interactive (list (region-beginning) (region-end)))
   (save-excursion
     (goto-char start)
@@ -251,7 +251,7 @@ Must complement the ``planemo--start-tags''")
              (prevhash-word (cadr previous-hash))
              (prevhash-ldiff (caddr previous-hash))
              (prevline-word (save-excursion
-                              (previous-line)
+                              (forward-line -1)
                               (planemo--get-fwot)))
              (prevline-isxml (equal "<" (substring
                                          prevline-word nil 1)))
