@@ -212,11 +212,23 @@ Must complement the ``planemo--start-tags''")
     (beginning-of-line)
     (delete-char (planemo--get-lalign))
     (insert-char ? new-alignpos)))
+;;;###autoload
+(defun planemo-indent-region (start end)
+  "Indent the current region."
+  (interactive (list (region-beginning) (region-end)))
+  ;;(save-excursion
+    (goto-char start)
+    (while (< (point) end)
+      (planemo-indent-line)
+      (forward-line 1))
+    ;;)
+    )
 
 ;;;###autoload
 (defun planemo-indent-line ()
-  "Determine the available indentation options for the current line under cursor."
+  "Indent the current line."
   (interactive)
+  (beginning-of-line)
   (let* ((curr-word (planemo--get-fwot))
          (curr-xmlp (equal "<" (substring curr-word nil 1)))
          (curr-hashp (member curr-word planemo--all-tags)))
