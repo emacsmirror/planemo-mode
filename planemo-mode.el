@@ -26,6 +26,8 @@
 ;; Galaxy XML files.
 
 ;;; Code:
+(require 'nxml-mode)
+(require 'dash)
 
 (defgroup planemo nil
   "Planemo customisable attributes"
@@ -119,7 +121,7 @@ Must complement the ``planemo--start-tags''")
       0)))
 
 (defun planemo--jump-prevtag ()
-  "Obtain the spacing and tag of to the previous hashword.  Does not save the excursion because it may be used in succession to determine hierarchy."
+  "Obtain the spacing and tag of to the previous tag.  Does not save the excursion because it may be used in succession to determine hierarchy."
   (let* ((pointnow (point))
          (bounds
           (list (search-backward-regexp
@@ -140,11 +142,11 @@ Must complement the ``planemo--start-tags''")
      (line-number-at-pos (min first second))))
 
 (defun planemo--get-prevtag ()
-  "Get the previous hashword without changing position."
+  "Get the previous tag without changing position."
   (save-excursion (planemo--jump-prevtag)))
 
 (defun planemo--get-forwtag ()
-  "Get the first hashword on the current line."
+  "Get the first tag on the current line."
   (save-excursion
     (beginning-of-line)
     (search-forward-regexp
@@ -156,13 +158,13 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--get-fwot ()
   "Get the first word or tag on the current line."
   (let* ((fword (save-excursion
-                 (beginning-of-line)
-                 (string-trim
-                  (car
-                   (split-string
-                    (buffer-substring-no-properties
-                     (point) (progn (forward-word) (point)))
-                    "\n"))))))
+                  (beginning-of-line)
+                  (string-trim
+                   (car
+                    (split-string
+                     (buffer-substring-no-properties
+                      (point) (progn (forward-word) (point)))
+                     "\n"))))))
     (if (equal "" fword)
         "     "  ;; return blank tag
       (cond ((equal "##" (substring fword nil 2)) "##")
@@ -172,21 +174,21 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--matchtag-back (curr-word)
   "Find the nearest previous start tag that would complement CURR-WORD."
+  ;; The easy method would just be to do a reverse regex search, but
+  ;; in the future I plan to look backwards for unpaired tags only.
   (let* ((assoc-map '(("end for" . "for")
                       ("end if" . "if")))
-                      ;;("for" . "end for")
-                      ;;("if" . "end if")))
          (wanted-tag (alist-get curr-word assoc-map nil nil 'string=))
          (result nil))
     ;; - here we stack tags as we find them and pop them off
     ;;   when consecutive tags pair up
     ;;(poplist (list curr-word)))
     (save-excursion
-      (while (not
-              (-let (((align tag nl) (planemo--jump-prevtag)))
-                ;; exit condition
-                (if (string= tag wanted-tag)
-                    (setq result (list align tag nl)))))))
+      (while
+          (not (-let (((align tag nl) (planemo--jump-prevtag)))
+                 ;; exit condition
+                 (if (string= tag wanted-tag)
+                     (setq result (list align tag nl)))))))
     result))
 
 ;; BEGIN: Indentation outcomes
