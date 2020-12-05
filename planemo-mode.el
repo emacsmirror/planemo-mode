@@ -121,10 +121,12 @@ Must complement the ``planemo--start-tags''")
                  nil t)
                 (match-beginning 0) (match-end 0)))
          (tag (buffer-substring-no-properties (1+ (nth 1 bounds))
-                                              (nth 2 bounds)))
-         (line-relative (count-lines (nth 1 bounds) pointnow)))
+                                              (nth 2 bounds))))
     (if (car bounds)
-        (list (planemo--get-lalign) tag line-relative))))
+        (list (planemo--get-lalign) tag
+              (planemo--numlines (nth 1 bounds) pointnow))
+      (list nil nil))))
+
 
 (defun planemo--numlines (first second)
   "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
@@ -182,8 +184,7 @@ Must complement the ``planemo--start-tags''")
   (message "outcome B: End word. Looking for matching Start word")
   (indent-line-to (planemo--matchtag-back curr-word)))
 
-(defun planemo--ind-nestunder (prev-align)
-  "Nest the current line under PREV-ALIGN."
+
 (defvar cycle-indents nil
   "Toggle for nesting under.")
 
@@ -206,12 +207,6 @@ Must complement the ``planemo--start-tags''")
   (indent-line-to (save-excursion (forward-line -1) (planemo--get-lalign))))
 ;; END: Indentation outcomes
 
-(defun planemo--ind-performalign (new-alignpos)
-  "Align the current line to NEW-ALIGNPOS."
-  (save-excursion
-    (beginning-of-line)
-    (delete-char (planemo--get-lalign))
-    (insert-char ? new-alignpos)))
 ;;;###autoload
 (defun planemo-indent-region (start end)
   "Indent the current region."
