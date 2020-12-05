@@ -126,6 +126,15 @@ Must complement the ``planemo--start-tags''")
     (if (car bounds)
         (list (planemo--get-lalign) tag line-relative))))
 
+(defun planemo--numlines (first second)
+  "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
+  (let ((nlines (count-lines first second)))
+    (if (eq second (line-beginning-position))
+        (setq nlines (1+ nlines)))
+    (if (eq first (line-beginning-position))
+        (setq nlines (1+ nlines)))
+    (1- nlines)))
+
 (defun planemo--get-prevtag ()
   "Get the previous hashword without changing position."
   (save-excursion (planemo--jump-prevtag)))
@@ -162,12 +171,12 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--ind-alignwith (prev-align)
   "Align the following line with PREV-ALIGN."
   (message "outcome AlignWith: End word, with matching Start word")
-  (planemo--ind-performalign prev-align))
+  (indent-line-to prev-align))
 
 (defun planemo--ind-findprevmatch (curr-word)
   "Find a previous starting tag to complement CURR-WORD."
   (message "outcome B: End word. Looking for matching Start word")
-  (planemo--ind-performalign (planemo--matchtag-back curr-word)))
+  (indent-line-to (planemo--matchtag-back curr-word)))
 
 (defun planemo--ind-nestunder (prev-align)
   "Nest the current line under PREV-ALIGN."
@@ -181,7 +190,7 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--ind-prevline ()
   "Indent the current line to the previous line."
   (message "outcome PrevLine: No previous tag. Align to previous line.")
-  (planemo--ind-performalign (save-excursion (forward-line -1) (planemo--get-lalign))))
+  (indent-line-to (save-excursion (forward-line -1) (planemo--get-lalign))))
 ;; END: Indentation outcomes
 
 (defun planemo--ind-performalign (new-alignpos)
