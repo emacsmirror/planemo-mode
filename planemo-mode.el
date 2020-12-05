@@ -249,16 +249,17 @@ Must complement the ``planemo--start-tags''")
           (let* ((curr-startp (member curr-word planemo--start-tags))
                  (curr-endp (member curr-word planemo--end-tags))
                  (curr-middp (member curr-word planemo--middle-tags))
-                 ;; TODO: Handle middp cases
                  ;;(curr-othrp (member curr-word planemo--other-tags))
                  (prev-startp (member prev-word planemo--start-tags))
                  (prev-endp (member prev-word planemo--end-tags))
+                 (prev-middp (member prev-word planemo--middle-tags))
                  (match-pairp (or (and (string= prev-word "if")
                                        (member curr-word '("else" "end if")))
                                   (and (string= prev-word "for")
                                        (string= curr-word "end for")))))
             (cond (curr-hashp
-                   (cond (curr-endp ;; current is end of a pair?
+                   (cond ((or curr-endp curr-middp)
+                          ;; current is end or middle of a pair?
                           (cond
                            ;; ["for"] and "end for": match alignment
                            (match-pairp (planemo--ind-alignwith prev-align))
