@@ -194,12 +194,12 @@ Must complement the ``planemo--start-tags''")
 ;; BEGIN: Indentation outcomes
 (defun planemo--ind-alignwith (prev-align)
   "Align the following line with PREV-ALIGN."
-  (message "outcome AlignWith: End word, with matching Start word")
+  ;;(message "outcome AlignWith: End word, with matching Start word")
   (indent-line-to prev-align))
 
 (defun planemo--ind-findprevmatch (curr-word)
   "Find a previous starting tag to complement CURR-WORD."
-  (message "outcome B: End word. Looking for matching Start word")
+  ;;(message "outcome B: End word. Looking for matching Start word")
   (-let (((align _tag) (planemo--matchtag-back curr-word)))
     (if align
         (indent-line-to align))))
@@ -210,7 +210,7 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--ind-nestunder (prev-align &optional cycle)
   "Nest the current line under PREV-ALIGN.  If CYCLE is t, then a repeated call will toggle the indent."
-  (message "outcome NestUnder: Nest under previous hash")
+  ;;(message "outcome NestUnder: Nest under previous hash")
   (if cycle
       (if (setq cycle-indents (not cycle-indents)) ;; toggle
           (indent-line-to (+ prev-align 4))
@@ -219,11 +219,12 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--ind-nothing ()
   "Do nothing to the current line."
-  (message "outcome D: Do nothing"))
+  ;;(message "outcome D: Do nothing")
+  )
 
 (defun planemo--ind-prevline ()
   "Indent the current line to the previous line."
-  (message "outcome PrevLine: No previous tag. Align to previous line.")
+  ;;(message "outcome PrevLine: No previous tag. Align to previous line.")
   (indent-line-to (save-excursion (forward-line -1) (planemo--get-lalign))))
 ;; END: Indentation outcomes
 
