@@ -136,12 +136,8 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--numlines (first second)
   "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
-  (let ((nlines (count-lines first second)))
-    (if (eq second (line-beginning-position))
-        (setq nlines (1+ nlines)))
-    (if (eq first (line-beginning-position))
-        (setq nlines (1+ nlines)))
-    (1- nlines)))
+  (- (line-number-at-pos (max first second))
+     (line-number-at-pos (min first second))))
 
 (defun planemo--get-prevtag ()
   "Get the previous hashword without changing position."
