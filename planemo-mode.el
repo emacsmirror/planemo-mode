@@ -93,8 +93,8 @@ Must complement the ``planemo--start-tags''")
               indent-region-function 'planemo-indent-region)
   (make-face 'cheetah-variable-face)
   (let ((rx-keywords (eval `(rx (group "#" (or ,@planemo--all-tags) eow))))
-        (rx-bashcomms (eval `(rx bow (group (or,@planemo--bash-comms)) eow)))
-        (rx-bashops (eval `(rx space (group (or,@planemo--bash-ops)) space)))
+        (rx-bashcomms (eval `(rx bow (group (or ,@planemo--bash-comms)) eow)))
+        (rx-bashops (eval `(rx space (group (or ,@planemo--bash-ops)) space)))
         (rx-pyops (eval `(rx (or bow space) (group (or ,@planemo--python-ops)) (or eow space))))
         (rx-pyfun (eval `(rx (or bow space) (group (or ,@planemo--python-fun)) (or eow space)))))
     (font-lock-add-keywords
@@ -205,14 +205,14 @@ Must complement the ``planemo--start-tags''")
         (indent-line-to align))))
 
 
-(defvar cycle-indents nil
+(defvar planemo--cycle-indents nil
   "Toggle for nesting under.")
 
 (defun planemo--ind-nestunder (prev-align &optional cycle)
   "Nest the current line under PREV-ALIGN.  If CYCLE is t, then a repeated call will toggle the indent."
-  ;;(message "outcome NestUnder: Nest under previous hash")
+  ;;(message "outcome NestUnder: Nest under previous tag")
   (if cycle
-      (if (setq cycle-indents (not cycle-indents)) ;; toggle
+      (if (setq planemo--cycle-indents (not planemo--cycle-indents)) ;; toggle
           (indent-line-to (+ prev-align 4))
         (indent-line-to prev-align))
     (indent-line-to (+ prev-align 4))))
@@ -246,41 +246,41 @@ Must complement the ``planemo--start-tags''")
   (let* ((curr-word (planemo--get-fwot))
          (curr-xmlp (or (equal "<" (substring curr-word nil 1))
                         (equal ">" (substring curr-word -1))))
-         (curr-hashp (member curr-word planemo--all-tags)))
+         (curr-tagp (member curr-word planemo--all-tags)))
     (if curr-xmlp
         (nxml-indent-line)
-      (let* ((previous-hash (planemo--get-prevtag))
-             (prevhash-align (car previous-hash))
-             (prevhash-word (cadr previous-hash))
-             (prevhash-ldiff (caddr previous-hash))
+      (let* ((previous-tag (planemo--get-prevtag))
+             (prevtag-align (car previous-tag))
+             (prevtag-word (cadr previous-tag))
+             (prevtag-ldiff (caddr previous-tag))
              (prevline-word (save-excursion
                               (forward-line -1)
                               (planemo--get-fwot)))
              (prevline-isxml (equal "<" (substring
                                          prevline-word nil 1)))
-             (prevhash-ldiff1-p (or (eq 1 prevhash-ldiff)
+             (prevtag-ldiff1-p (or (eq 1 prevtag-ldiff)
                                     (member prevline-word
                                             planemo--most-tags))))
         (cond
          (curr-xmlp (nxml-indent-line)) ;; <xmltag> : use nxml-indent
-         (prevhash-word                     ;; previous tag exists
+         (prevtag-word                     ;; previous tag exists
           (let* ((curr-startp (member curr-word planemo--start-tags))
                  (curr-endp (member curr-word planemo--end-tags))
                  (curr-middp (member curr-word planemo--middle-tags))
                  ;;(curr-othrp (member curr-word planemo--other-tags))
-                 (prev-startp (member prevhash-word planemo--start-tags))
-                 (prev-endp (member prevhash-word planemo--end-tags))
-                 (prev-middp (member prevhash-word planemo--middle-tags))
-                 (match-pairp (or (and (string= prevhash-word "if")
+                 (prev-startp (member prevtag-word planemo--start-tags))
+                 (prev-endp (member prevtag-word planemo--end-tags))
+                 (prev-middp (member prevtag-word planemo--middle-tags))
+                 (match-pairp (or (and (string= prevtag-word "if")
                                        (member curr-word '("else" "end if")))
-                                  (and (string= prevhash-word "for")
+                                  (and (string= prevtag-word "for")
                                        (string= curr-word "end for")))))
-            (cond (curr-hashp
+            (cond (curr-tagp
                    (cond ((or curr-endp curr-middp)
                           ;; current is end or middle of a pair?
                           (cond
                            ;; ["for"] and "end for": match alignment
-                           (match-pairp (planemo--ind-alignwith prevhash-align))
+                           (match-pairp (planemo--ind-alignwith prevtag-align))
                            ;; ["if"] and "end for" : user did something wrong, do nothing.
                            (prev-startp (planemo--ind-nothing))
                            ;; [ * ] and "end for" : look for a better previous match.
@@ -291,39 +291,37 @@ Must complement the ``planemo--start-tags''")
                          (curr-startp ;; current is start of a pair?
                           (cond
                            ;; ["end for"] and "for" : unrelated clause, align to it
-                           (prev-endp (planemo--ind-alignwith prevhash-align))
+                           (prev-endp (planemo--ind-alignwith prevtag-align))
                            ;; ["if"] and "for" : nest current under parent
-                           (prev-startp (planemo--ind-nestunder prevhash-align))
+                           (prev-startp (planemo--ind-nestunder prevtag-align))
                            ;; [ * ] and "for" : align to previous line
                            (t (planemo--ind-prevline))))
                          ;;
                          (curr-middp  ;; current is e.g. "#set"
                           (cond
                            ;; ["if"] and "set" : nest current under parent
-                           (prev-startp (planemo--ind-nestunder prevhash-align))
+                           (prev-startp (planemo--ind-nestunder prevtag-align))
                            ;; ["end"] and "set" : unrelated clause, align to it
-                           (prev-endp (planemo--ind-alignwith prevhash-align))
+                           (prev-endp (planemo--ind-alignwith prevtag-align))
                            ;; * and "set" : align to previous line
                            (t (planemo--ind-prevline))))
                          ;; "#set"
                          (t (planemo--ind-prevline))))
-                  ;; !!At this point curr-word is not a hash word!!
+                  ;; !!At this point curr-word is not a tag word!!
                   ;; ["tag"] but the last line is not one: align to it.
-                  ((not prevhash-ldiff1-p) (planemo--ind-prevline))
+                  ((not prevtag-ldiff1-p) (planemo--ind-prevline))
                   ;; ["end for"] followed by "blah" : align to it
-                  (prev-endp (planemo--ind-alignwith prevhash-align))
+                  (prev-endp (planemo--ind-alignwith prevtag-align))
                   ;; ["for"] followed by "blah" : nest under it
                   ((or prev-startp prev-middp)
-                   ;; Here we cycle the first line under the hash
-                   (planemo--ind-nestunder prevhash-align t))
+                   ;; Here we cycle the first line under the tag
+                   (planemo--ind-nestunder prevtag-align t))
                   ;; no previous tag : align to previous line or 0
-                  (t (planemo--ind-prevline)))
-            ))
-         ;; not xml, and no prev hash : align to previous line
+                  (t (planemo--ind-prevline)))))
+         ;; not xml, and no prev tag : align to previous line
          ;; - unless the previous line is an XML, in which case set to 0
          (prevline-isxml (indent-line-to 0))
-         (t (planemo--ind-prevline))
-         )))))
+         (t (planemo--ind-prevline)))))))
 
 (provide 'planemo-mode)
 ;;; planemo-mode.el ends here

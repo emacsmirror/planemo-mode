@@ -1,0 +1,62 @@
+#+TITLE: planemo-mode.el
+
+#+HTML: <a href="https://melpa.org/#/planemo-mode"><img src="https://melpa.org/packages/planemo-mode-badge.svg"></a>
+
+This package provides a minor mode for developing tool wrappers for the [[https://galaxyproject.eu/][GalaxyProject]], which makes use of a [[https://docs.galaxyproject.org/en/master/dev/schema.html][specific XML-based schema]] in conjunction with the [[https://cheetahtemplate.org/][Cheetah template engine]]. 
+
+The mode brings Bash and Cheetah fontification (inspired by the [[https://www.emacswiki.org/emacs/CheetahMode][Cheetah Mode]] in the Emacs Wiki) and indentation functions. 
+
+#+HTML: <img src="https://gitlab.com/mtekman/planemo-mode.el/uploads/f5183f3f486f994afc4861f990c16d03/fixed.optim.gif" />
+
+** Installation
+
+Install from MELPA or using =use-package=:
+
+   #+begin_src elisp
+     (use-package planemo-mode
+       :load-path ("~/repos/_mtekman/_elisp/planemo-mode.el")
+       :mode ("\\.xml\\'" . planemo-mode))
+   #+end_src
+
+** Usage
+
+Open a Galaxy XML file such as those hosted on [[https://github.com/galaxyproject/tools-iuc/blob/master/tools/table_compute/table_compute.xml][tools-iuc]] and notice that the fontification extends beyond the XML but into the command and config sections.
+
+Pressing =TAB= on a given line or on a selected region will indent the line or region. The indentation rules emulate Python indentation, but allow more flexibility: non-Cheetah terms can be aligned to be nested under an opening =if= or =for= statement, or flush with them, or at position 0. This provides users with the ability to ensure that the code after the templating does not have inconsistent spacing (such as R scripts).
+
+The indentation logic was complex to implement, but actually follows some simple rules:
+
+1. Do normal =nxml= indentation if within an XML section.
+2. Python Indent all Cheetah tags (e.g. =#if=, =#for=, =#else=, etc.)
+3. The first non-Cheetah line under a Cheetah tag provides flexible indents (nest, flush, 0) as describe in the above paragraph.
+4. All other lines align to the line above
+
+** Customisation
+
+*** Keywords
+
+The following keywords are fontified and can be customized by setting the variable.
+
+| VarName             | Description                               | Default Value                                              |
+|---------------------+-------------------------------------------+------------------------------------------------------------|
+| =planemo--python-ops= | Python operations used by Cheetah         | "or" "and" "in" "+" "-" "*" "/" "==" "!="                    |
+| =planemo--python-fun= | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
+| =planemo--bash-comms= | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
+| =planemo--bash-ops=   | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
+
+*** Colours
+
+   For theme consistency, the font-faces are locked to the default font-lock faces, and users should switch themes or modify their default font faces should they wish to change the colouring of the fontified terms.
+
+** Similar Projects
+
+ - [[https://www.emacswiki.org/emacs/CheetahMode][Cheetah Mode]] from the Emacs Wiki
+
+** Changelog
+
+*** 0.1
+- Initial release
+
+** Planned Features
+
+- Integrate with Galaxy XML language server
