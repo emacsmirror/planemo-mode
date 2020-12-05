@@ -28,6 +28,7 @@
 ;;; Code:
 (require 'nxml-mode)
 (require 'dash)
+(require 'subr-x)
 
 (defgroup planemo nil
   "Planemo customisable attributes"
