@@ -238,7 +238,11 @@ Must complement the ``planemo--start-tags''")
              (prev-align (car previous-hash))
              (prev-word (cadr previous-hash))
              (prev-ldiff (caddr previous-hash))
-             (prev-ldiff1-p (eq 1 prev-ldiff)))
+             (prev-ldiff1-p (or (eq 1 prev-ldiff)
+                                (save-excursion
+                                  (previous-line)
+                                  (member (planemo--get-fwot)
+                                          planemo--all-tags)))))
         (cond
          (curr-xmlp (nxml-indent-line)) ;; <xmltag> : use nxml-indent
          (previous-hash                 ;; previous tag exists
