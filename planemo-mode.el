@@ -40,6 +40,11 @@
   :type 'list
   :group 'planemo)
 
+(defcustom planemo--root-align-region t
+  "Align all lines relative to root.  When the first line in a section is aligned it alters the root alignment, and by setting this value to t it aligns all other lines too."
+  :type 'boolean
+  :group 'planemo)
+
 (defcustom planemo--python-ops
   '("or" "and" "in" "+" "-" "*" "/" "==" "!=")
   "Python operations used by Cheetah."
@@ -362,13 +367,25 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
                     (1+ xmlpos) (prog2 (forward-word 1) (point)))))
       (cons xmltag lndiff))))
 
+(defun planemo--ind-region-to (start end align)
+  "Indent region between START and END by alignment amount ALIGN.
+The ``indent-rigidly'' function needs a relative value, so we calculate this from the current indentation."
+  (let ((diff-align (- planemo--root-alignment (current-indentation))))
+    ;;(if (> diff-align 0) ;; rightward
+    (indent-rigidly start end diff-align)))
+
 (defun planemo--toggle-root-alignment ()
   "Toggle the first line after an XML tag, and set the ``planemo--root-alignment''."
   (let* ((prev-align (save-excursion (forward-line -1) (current-indentation)))
          (next-align (if (eq 0 planemo--root-alignment) prev-align 0)))
     (setq planemo--root-alignment next-align)
     (message "Root align set to %d" next-align)
-    (indent-line-to next-align)))
+    (if planemo--root-align-region
+        (let ((bor (line-beginning-position))
+              (eor (save-excursion (re-search-forward (rx (or "]]>" "</")))
+                                   (line-beginning-position))))
+          (planemo--ind-region-to bor eor next-align))
+      (indent-line-to next-align))))
 
 (provide 'planemo-mode)
 ;;; planemo-mode.el ends here
