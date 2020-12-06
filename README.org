@@ -6,7 +6,7 @@ This package provides a minor mode for developing tool wrappers for the [[https:
 
 The mode brings Bash and Cheetah fontification (inspired by the [[https://www.emacswiki.org/emacs/CheetahMode][Cheetah Mode]] in the Emacs Wiki) and indentation functions. 
 
-#+HTML: <img src="https://gitlab.com/mtekman/planemo-mode.el/uploads/f5183f3f486f994afc4861f990c16d03/fixed.optim.gif" />
+#+HTML: <img src="https://gitlab.com/mtekman/planemo-mode.el/uploads/e04f81243d459306b519379309a8a4a5/fixed1.gif" />
 
 ** Installation
 
