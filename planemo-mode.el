@@ -85,6 +85,8 @@ Must complement the ``planemo--start-tags''")
           planemo--middle-tags)
   "Tags with the same alignment.")
 
+(defvar planemo--root-alignment 0
+  "This is the smallest possible left align value for the section, and can only be altered by ``planemo--toggle-root-alignment'' on the first non XML line.")
 
 (define-derived-mode planemo-mode nxml-mode "Pl[XML|Cheetah]"
   "Major mode for editing Galaxy XML files."
@@ -323,8 +325,17 @@ Must complement the ``planemo--start-tags''")
                   (t (planemo--ind-prevline)))))
          ;; not xml, and no prev tag : align to previous line
          ;; - unless the previous line is an XML, in which case set to 0
-         (prevline-isxml (indent-line-to 0))
+         (prevline-isxml (planemo--toggle-root-alignment))
          (t (planemo--ind-prevline)))))))
+
+
+(defun planemo--toggle-root-alignment ()
+  "Toggle the first line after an XML tag, and set the ``planemo--root-alignment''."
+  (let* ((prev-align (save-excursion (forward-line -1) (current-indentation)))
+         (next-align (if (eq 0 planemo--root-alignment) prev-align 0)))
+    (setq planemo--root-alignment next-align)
+    (message "Root align set to %d" next-align)
+    (indent-line-to next-align)))
 
 (provide 'planemo-mode)
 ;;; planemo-mode.el ends here
