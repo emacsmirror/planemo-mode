@@ -111,15 +111,6 @@ Must complement the ``planemo--start-tags''")
        ))
     (font-lock-mode 1)))
 
-(defun planemo--get-lalign ()
-  "Number of left-aligned spaces."
-  (save-excursion
-    (beginning-of-line)
-    (if (eq ?  (char-after)) ;; whitespace
-        (progn (forward-whitespace 1)
-               (- (point) (line-beginning-position)))
-      0)))
-
 (defun planemo--jump-prevtag ()
   "Obtain the spacing and tag of to the previous tag.  Does not save the excursion because it may be used in succession to determine hierarchy."
   (let* ((pointnow (point))
@@ -131,10 +122,9 @@ Must complement the ``planemo--start-tags''")
          (tag (buffer-substring-no-properties (1+ (nth 1 bounds))
                                               (nth 2 bounds))))
     (if (car bounds)
-        (list (planemo--get-lalign) tag
+        (list (current-indentation) tag
               (planemo--numlines (nth 1 bounds) pointnow))
       (list nil nil))))
-
 
 (defun planemo--numlines (first second)
   "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
@@ -225,7 +215,7 @@ Must complement the ``planemo--start-tags''")
 (defun planemo--ind-prevline ()
   "Indent the current line to the previous line."
   ;;(message "outcome PrevLine: No previous tag. Align to previous line.")
-  (indent-line-to (save-excursion (forward-line -1) (planemo--get-lalign))))
+  (indent-line-to (save-excursion (forward-line -1) (current-indentation))))
 ;; END: Indentation outcomes
 
 ;;;###autoload
