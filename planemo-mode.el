@@ -164,13 +164,6 @@ Must complement the ``planemo--start-tags''")
              (substring (planemo--get-forwtag) 1))
             (t fword)))))
 
-(defun planemo--matchtag-back (curr-word)
-  "Find the nearest previous start tag that would complement CURR-WORD."
-  ;; The easy method would just be to do a reverse regex search, but
-  ;; in the future I plan to look backwards for unpaired tags only.
-  (let* ((assoc-map '(("end for" . "for")
-                      ("end if" . "if")))
-         (wanted-tag (alist-get curr-word assoc-map nil nil 'string=))
 (defconst planemo--matching-pairs
   '(("end for" . "for")
     ("end if" . "if")
@@ -185,17 +178,29 @@ Must complement the ``planemo--start-tags''")
                   nil nil 'string=)
        (string= it tag2)))
 
+(defun planemo--matchtag-back (tag)
+  "Find the nearest previous start tag that would complement TAG.
+Here we stack tags as we find them and pop them off when consecutive tags pair up."
+  (let* ((wanted-tag (alist-get tag planemo--matching-pairs
+                                nil nil 'string=))
+         (tag-stack nil)
+         (error-message (format "Could not find matching pair for '%s'" tag))
          (result nil))
-    ;; - here we stack tags as we find them and pop them off
-    ;;   when consecutive tags pair up
-    ;;(poplist (list curr-word)))
-    (save-excursion
-      (while
-          (not (-let (((align tag nl) (planemo--jump-prevtag)))
-                 ;; exit condition
-                 (if (string= tag wanted-tag)
-                     (setq result (list align tag nl)))))))
-    result))
+    (if wanted-tag
+        (save-excursion
+          (while
+              (not (-let* (((align curr-tag nl) (planemo--jump-prevtag))
+                           (last-tag (car tag-stack)))
+                     (cond ((eq nil curr-tag) ;; no prevtag means exceeded bounds
+                            (user-error error-message))
+                           ((planemo--tags-pairp curr-tag last-tag) ;;pop it from the stack
+                            (prog1 nil (setq tag-stack (cdr tag-stack))))
+                           ((string= curr-tag wanted-tag) ;; return our wanted tag
+                            (setq result (list align curr-tag nl)))
+                           (t ;; otherwise push to stack and keep searching
+                            (prog1 nil (setq tag-stack (cons curr-tag tag-stack))))))))
+          result)
+      (user-error error-message))))
 
 ;; BEGIN: Indentation outcomes
 (defun planemo--ind-alignwith (prev-align)
