@@ -54,6 +54,10 @@ e.g. To highlight only the specific bash and python commands that we want, we ca
 #+end_src
 
 
+*** Scope
+
+The variable =planemo--xml-scope= can also be configured so that the indentation logic works within other XML tags, other than the default /command/ and /configfile/ sections.
+
 *** Colours
 
    For theme consistency, the font-faces are locked to the default font-lock faces, and users should switch themes or modify their default font faces should they wish to change the colouring of the fontified terms.
@@ -68,6 +72,7 @@ e.g. To highlight only the specific bash and python commands that we want, we ca
 *** Changelog
 
 **** 0.2
+ - Scope context check and simplified indent logic
  - Root alignment implemented
  - Matching previous tag function updated
 **** 0.1

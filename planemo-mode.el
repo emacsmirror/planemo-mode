@@ -34,6 +34,12 @@
   "Planemo customisable attributes"
   :group 'productivity)
 
+(defcustom planemo--xml-scope
+  '("command" "configfile")
+  "XML tag to perform Cheetah indentation logic within."
+  :type 'list
+  :group 'planemo)
+
 (defcustom planemo--python-ops
   '("or" "and" "in" "+" "-" "*" "/" "==" "!=")
   "Python operations used by Cheetah."
@@ -265,27 +271,25 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
 (defun planemo-indent-line ()
   "Indent the current line."
   (interactive)
-  (beginning-of-line)
-  (let* ((curr-word (planemo--get-fwot))
-         (curr-xmlp (or (equal "<" (substring curr-word nil 1))
-                        (equal ">" (substring curr-word -1))))
-         (curr-tagp (member curr-word planemo--all-tags)))
-    (if curr-xmlp
-        (nxml-indent-line)
-      (let* ((previous-tag (planemo--get-prevtag))
+  (let ((tagldiff (planemo--within-validxml)))
+    (if (not tagldiff)     ;; not within a valid XML region
+        (nxml-indent-line) ;; do the default indent
+      ;; otherwise perform line logic
+      (beginning-of-line)
+      (let* ((curr-word (planemo--get-fwot))
+             (curr-tagp (member curr-word planemo--all-tags))
+             (previous-tag (planemo--get-prevtag))
              (prevtag-align (car previous-tag))
              (prevtag-word (cadr previous-tag))
              (prevtag-ldiff (caddr previous-tag))
              (prevline-word (save-excursion
                               (forward-line -1)
                               (planemo--get-fwot)))
-             (prevline-isxml (equal "<" (substring
-                                         prevline-word nil 1)))
+             (prevline-isxml (eq (cdr tagldiff) 1))
              (prevtag-ldiff1-p (or (eq 1 prevtag-ldiff)
-                                    (member prevline-word
-                                            planemo--most-tags))))
+                                   (member prevline-word
+                                           planemo--most-tags))))
         (cond
-         (curr-xmlp (nxml-indent-line)) ;; <xmltag> : use nxml-indent
          (prevtag-word                     ;; previous tag exists
           (let* ((curr-startp (member curr-word planemo--start-tags))
                  (curr-endp (member curr-word planemo--end-tags))
@@ -298,54 +302,64 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
                                        (member curr-word '("else" "end if")))
                                   (and (string= prevtag-word "for")
                                        (string= curr-word "end for")))))
-            (cond (curr-tagp
-                   (cond ((or curr-endp curr-middp)
-                          ;; current is end or middle of a pair?
-                          (cond
-                           ;; ["for"] and "end for": match alignment
-                           (match-pairp (planemo--ind-alignwith prevtag-align))
-                           ;; ["if"] and "end for" : user did something wrong, do nothing.
-                           (prev-startp (planemo--ind-nothing))
-                           ;; [ * ] and "end for" : look for a better previous match.
-                           ;; - If match found, align to it
-                           ;; - If none found, align to previous line
-                           (t (planemo--ind-findprevmatch curr-word))))
-                         ;;
-                         (curr-startp ;; current is start of a pair?
-                          (cond
-                           ;; ["end for"] and "for" : unrelated clause, align to it
-                           (prev-endp (planemo--ind-alignwith prevtag-align))
-                           ;; ["if"] and "for" : nest current under parent
-                           (prev-startp (planemo--ind-nestunder prevtag-align))
-                           ;; [ * ] and "for" : align to previous line
-                           (t (planemo--ind-prevline))))
-                         ;;
-                         (curr-middp  ;; current is e.g. "#set"
-                          (cond
-                           ;; ["if"] and "set" : nest current under parent
-                           (prev-startp (planemo--ind-nestunder prevtag-align))
-                           ;; ["end"] and "set" : unrelated clause, align to it
-                           (prev-endp (planemo--ind-alignwith prevtag-align))
-                           ;; * and "set" : align to previous line
-                           (t (planemo--ind-prevline))))
-                         ;; "#set"
-                         (t (planemo--ind-prevline))))
-                  ;; !!At this point curr-word is not a tag word!!
-                  ;; ["tag"] but the last line is not one: align to it.
-                  ((not prevtag-ldiff1-p) (planemo--ind-prevline))
-                  ;; ["end for"] followed by "blah" : align to it
-                  (prev-endp (planemo--ind-alignwith prevtag-align))
-                  ;; ["for"] followed by "blah" : nest under it
-                  ((or prev-startp prev-middp)
-                   ;; Here we cycle the first line under the tag
-                   (planemo--ind-nestunder prevtag-align t))
-                  ;; no previous tag : align to previous line or 0
-                  (t (planemo--ind-prevline)))))
-         ;; not xml, and no prev tag : align to previous line
-         ;; - unless the previous line is an XML, in which case set to 0
+            (cond
+             ;; current is a #tag
+             (curr-tagp
+              (cond ((or curr-endp curr-middp) ;; end or middle of a pair?
+                     (cond
+                      ;; ["for"] and "end for": match alignment
+                      (match-pairp (planemo--ind-alignwith prevtag-align))
+                      ;; ["if"] and "end for" : user did something wrong, do nothing.
+                      (prev-startp (planemo--ind-nothing))
+                      ;; [ * ] and "end for" : look for a better previous match.
+                      (t (planemo--ind-findprevmatch curr-word))))
+                    (curr-startp ;; start of a pair?
+                     (cond
+                      ;; ["end for"] and "for" : unrelated clause, align to it
+                      (prev-endp (planemo--ind-alignwith prevtag-align))
+                      ;; ["if"] and "for" : nest current under parent
+                      (prev-startp (planemo--ind-nestunder prevtag-align))
+                      ;; [ * ] and "for" : align to previous line
+                      (t (planemo--ind-prevline))))
+                    (curr-middp  ;; current is e.g. "#set"
+                     (cond
+                      ;; ["if"] and "set" : nest current under parent
+                      (prev-startp (planemo--ind-nestunder prevtag-align))
+                      ;; ["end"] and "set" : unrelated clause, align to it
+                      (prev-endp (planemo--ind-alignwith prevtag-align))
+                      ;; * and "set" : align to previous line
+                      (t (planemo--ind-prevline))))
+                    ;; "#set"
+                    (t (planemo--ind-prevline))))
+             ;; current is a regular word following a previous tag
+             ;; ["tag"] but the last line is not one: align to it.
+             ((not prevtag-ldiff1-p) (planemo--ind-prevline))
+             ;; ["end for"] followed immediately by "blah" : align to it
+             (prev-endp (planemo--ind-alignwith prevtag-align))
+             ;; ["if" or "else"] followed immediately by "blah" : nest or 0
+             ((or prev-startp prev-middp)
+              (planemo--ind-nestunder prevtag-align t))
+             ;; no previous tag : align to previous line
+             (t (user-error "what"))
+             (t (planemo--ind-prevline)))))
+         ;; previous line is a valid XML line : toggle root alignment
          (prevline-isxml (planemo--toggle-root-alignment))
          (t (planemo--ind-prevline)))))))
 
+(defun planemo--within-validxml ()
+  "Determine if current line is a root alignment line"
+  (--> (planemo--get-parentxml)
+       (if (member (car it) planemo--xml-scope) it)))
+
+(defun planemo--get-parentxml ()
+  "Retrieve the parent XML and the line difference between it and the current line."
+  (save-excursion
+    (let* ((nowpos (point))
+           (xmlpos (prog2 (nxml-backward-up-element) (point)))
+           (lndiff (planemo--numlines nowpos xmlpos))
+           (xmltag (buffer-substring-no-properties
+                    (1+ xmlpos) (prog2 (forward-word 1) (point)))))
+      (cons xmltag lndiff))))
 
 (defun planemo--toggle-root-alignment ()
   "Toggle the first line after an XML tag, and set the ``planemo--root-alignment''."
