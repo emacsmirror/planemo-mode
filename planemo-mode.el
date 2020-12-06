@@ -227,6 +227,18 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
         (indent-line-to next-align))
     (indent-line-to (+ prev-align 4))))
 
+(defun planemo--ind-cycle (&rest indentlist)
+  "Cycle between all INDENTLIST on the current line."
+  (let* ((curr-align (current-indentation))
+         (curr-index (seq-position indentlist curr-align))
+         (next-index (if curr-index
+                         (mod (1+ curr-index) (length indentlist))
+                       0))
+         (next-align (seq-elt indentlist next-index)))
+    (setq planemo--root-alignment next-align)
+    (message "Root alignment set to %d" next-align)
+    (indent-line-to next-align)))
+
 (defun planemo--ind-nothing ()
   "Do nothing to the current line."
   ;;(message "outcome D: Do nothing")
