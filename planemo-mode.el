@@ -254,7 +254,10 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
 (defun planemo--ind-prevline ()
   "Indent the current line to the previous line."
   ;;(message "outcome PrevLine: No previous tag. Align to previous line.")
-  (indent-line-to (save-excursion (forward-line -1) (current-indentation))))
+  (indent-line-to (save-excursion
+                    ;; first non-blank line
+                    (re-search-backward-lax-whitespace (rx (not space)))
+                    (current-indentation))))
 ;; END: Indentation outcomes
 
 ;;;###autoload
