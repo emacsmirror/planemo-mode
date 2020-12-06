@@ -208,17 +208,16 @@ Must complement the ``planemo--start-tags''")
     (if align
         (indent-line-to align))))
 
-
-(defvar planemo--cycle-indents nil
-  "Toggle for nesting under.")
-
 (defun planemo--ind-nestunder (prev-align &optional cycle)
-  "Nest the current line under PREV-ALIGN.  If CYCLE is t, then a repeated call will toggle the indent."
+  "Nest the current line under PREV-ALIGN.  If CYCLE is given, then cycle the indentation between either the root alignment, or nested below the above line."
   ;;(message "outcome NestUnder: Nest under previous tag")
   (if cycle
-      (if (setq planemo--cycle-indents (not planemo--cycle-indents)) ;; toggle
-          (indent-line-to (+ prev-align 4))
-        (indent-line-to prev-align))
+      (let* ((indents (list (+ 4 prev-align) planemo--root-alignment))
+             (curr-align (current-indentation))
+             (curr-index (seq-position indents curr-align))
+             (next-index (mod (1+ (or curr-index 0)) 2)) ;; length indents
+             (next-align (seq-elt indents next-index)))
+        (indent-line-to next-align))
     (indent-line-to (+ prev-align 4))))
 
 (defun planemo--ind-nothing ()
