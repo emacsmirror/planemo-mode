@@ -6,7 +6,7 @@
 ;; URL: https://gitlab.com/mtekman/planemo-mode.el
 ;; Keywords: outlines
 ;; Package-Requires: ((emacs "27.1") (dash "2.17.0"))
-;; Version: 0.2
+;; Version: 0.3
 
 ;;; License:
 

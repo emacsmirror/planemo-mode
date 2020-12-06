@@ -56,7 +56,9 @@ e.g. To highlight only the specific bash and python commands that we want, we ca
 
 *** Scope
 
-The variable =planemo--xml-scope= can also be configured so that the indentation logic works within other XML tags, other than the default /command/ and /configfile/ sections.
++ The string list =planemo--xml-scope= can also be configured so that the indentation logic works within other XML tags, other than the default =("command" "configfile")= sections.
+
++ The boolean variable =planemo--root-align-region= provides automatic alignment of the an entire section when the first line in that section is indented. Set to =nil= to disable.
 
 *** Colours
 
@@ -70,6 +72,10 @@ The variable =planemo--xml-scope= can also be configured so that the indentation
 ** Updates
 
 *** Changelog
+
+**** 0.3
+ - Indentation skips blank lines when aligning to previous
+ - The root alignment now auto-aligns to all lines in the region when toggled.
 
 **** 0.2
  - Scope context check and simplified indent logic
