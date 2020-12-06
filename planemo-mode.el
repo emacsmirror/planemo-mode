@@ -264,8 +264,7 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
   (save-excursion
     (goto-char start)
     (while (< (point) end)
-      (planemo-indent-line)
-      (forward-line 1))))
+      (planemo-indent-line) (forward-line 1))))
 
 ;;;###autoload
 (defun planemo-indent-line ()
@@ -340,14 +339,13 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
              ((or prev-startp prev-middp)
               (planemo--ind-nestunder prevtag-align t))
              ;; no previous tag : align to previous line
-             (t (user-error "what"))
              (t (planemo--ind-prevline)))))
          ;; previous line is a valid XML line : toggle root alignment
          (prevline-isxml (planemo--toggle-root-alignment))
          (t (planemo--ind-prevline)))))))
 
 (defun planemo--within-validxml ()
-  "Determine if current line is a root alignment line"
+  "Determine if current line is a root alignment line."
   (--> (planemo--get-parentxml)
        (if (member (car it) planemo--xml-scope) it)))
 
