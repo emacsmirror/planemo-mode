@@ -169,6 +169,20 @@ Must complement the ``planemo--start-tags''")
   (let* ((assoc-map '(("end for" . "for")
                       ("end if" . "if")))
          (wanted-tag (alist-get curr-word assoc-map nil nil 'string=))
+(defconst planemo--matching-pairs
+  '(("end for" . "for")
+    ("end if" . "if")
+    ("if" . "end if")
+    ("for" . "end for"))
+  "Complementary Cheetah tags.")
+
+(defun planemo--tags-pairp (tag1 tag2)
+  "Is TAG1 complementary to TAG2?"
+  (--> (alist-get tag1
+                  planemo--matching-pairs
+                  nil nil 'string=)
+       (string= it tag2)))
+
          (result nil))
     ;; - here we stack tags as we find them and pop them off
     ;;   when consecutive tags pair up
