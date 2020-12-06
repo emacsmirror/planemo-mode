@@ -36,12 +36,12 @@ The indentation logic was complex to implement, but actually follows some simple
 
 The following keywords are fontified and can be customized by setting the variable.
 
-| VarName             | Description                               | Default Value                                              |
-|---------------------+-------------------------------------------+------------------------------------------------------------|
-| =planemo--python-ops= | Python operations used by Cheetah         | "or" "and" "in" "+" "-" "*" "/" "==" "!="                    |
-| =planemo--python-fun= | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
-| =planemo--bash-comms= | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
-| =planemo--bash-ops=   | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
+| Customisable-Variable | Description                               | Default Value                                              |
+|-----------------------+-------------------------------------------+------------------------------------------------------------|
+| =planemo--python-ops=   | Python operations used by Cheetah         | "or" "and" "in" "+" "-" "*" "/" "==" "!="                    |
+| =planemo--python-fun=   | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
+| =planemo--bash-comms=   | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
+| =planemo--bash-ops=     | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
 
 e.g. To highlight only the specific bash and python commands that we want, we can override the keywords with the example config below
 
