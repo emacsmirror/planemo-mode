@@ -14,7 +14,6 @@ Install from MELPA or using =use-package=:
 
    #+begin_src elisp
      (use-package planemo-mode
-       :load-path ("~/repos/_mtekman/_elisp/planemo-mode.el")
        :mode ("\\.xml\\'" . planemo-mode))
    #+end_src
 
@@ -48,15 +47,23 @@ The following keywords are fontified and can be customized by setting the variab
 
    For theme consistency, the font-faces are locked to the default font-lock faces, and users should switch themes or modify their default font faces should they wish to change the colouring of the fontified terms.
 
+
 ** Similar Projects
 
  - [[https://www.emacswiki.org/emacs/CheetahMode][Cheetah Mode]] from the Emacs Wiki
 
-** Changelog
+** Updates
 
-*** 0.1
-- Initial release
+*** Changelog
 
-** Planned Features
+**** 0.2
+ - Root alignment implemented
+ - Matching previous tag function updated
+**** 0.1
+ - Initial release
 
-- Integrate with Galaxy XML language server
+
+*** Planned Features
+
+ - Integrate with [[https://github.com/galaxyproject/galaxy-language-server][Galaxy XML language server]]
+   - A [[https://github.com/emacs-lsp/lsp-mode/pull/2333][PR is open]] at the Emacs [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]] repo
