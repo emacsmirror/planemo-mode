@@ -14,7 +14,7 @@ Install from MELPA or using =use-package=:
 
    #+begin_src elisp
      (use-package planemo-mode
-       :mode ("\\.xml\\'" . planemo-mode))
+       :mode ("\\.xml\\'")) ;; bind the mode to the XML extension
    #+end_src
 
 ** Usage
@@ -42,6 +42,17 @@ The following keywords are fontified and can be customized by setting the variab
 | =planemo--python-fun= | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
 | =planemo--bash-comms= | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
 | =planemo--bash-ops=   | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
+
+e.g. To highlight only the specific bash and python commands that we want, we can override the keywords with the example config below
+
+#+begin_src elisp
+  (use-package planemo-mode
+    :mode ("\\.xml\\'")
+    :config
+    (setq planemo--bash-comms '("Rscript" "python" "gawk")
+          planemo--python-fun '("enumerate" "lambda" )))
+#+end_src
+
 
 *** Colours
 
