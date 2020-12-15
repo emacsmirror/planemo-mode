@@ -38,10 +38,10 @@ The following keywords are fontified and can be customized by setting the variab
 
 | Customisable-Variable | Description                               | Default Value                                              |
 |-----------------------+-------------------------------------------+------------------------------------------------------------|
-| =planemo--python-ops=   | Python operations used by Cheetah         | "or" "and" "in" "+" "-" "*" "/" "==" "!="                    |
-| =planemo--python-fun=   | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
-| =planemo--bash-comms=   | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
-| =planemo--bash-ops=     | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
+| =planemo-python-ops=   | Python operations used by Cheetah         | "or" "and" "in" "+" "-" "*" "/" "==" "!="                    |
+| =planemo-python-fun=   | Python functions used by Cheetah          | "enumerate" "str" "int" "open"                             |
+| =planemo-bash-comms=   | Bash commands commonly found in the XML   | "cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch" |
+| =planemo-bash-ops=     | Bash operations commonly found in the XML | "&&" ">" "<" ">>" "<<" " \vert "                           |
 
 e.g. To highlight only the specific bash and python commands that we want, we can override the keywords with the example config below
 
@@ -49,16 +49,16 @@ e.g. To highlight only the specific bash and python commands that we want, we ca
   (use-package planemo-mode
     :mode ("\\.xml\\'")
     :config
-    (setq planemo--bash-comms '("Rscript" "python" "gawk")
-          planemo--python-fun '("enumerate" "lambda" )))
+    (setq planemo-bash-comms '("Rscript" "python" "gawk")
+          planemo-python-fun '("enumerate" "lambda" )))
 #+end_src
 
 
 *** Scope
 
-+ The string list =planemo--xml-scope= can also be configured so that the indentation logic works within other XML tags, other than the default =("command" "configfile")= sections.
++ The string list =planemo-xml-scope= can also be configured so that the indentation logic works within other XML tags, other than the default =("command" "configfile")= sections.
 
-+ The boolean variable =planemo--root-align-region= provides automatic alignment of the an entire section when the first line in that section is indented. Set to =nil= to disable.
++ The boolean variable =planemo-root-align-region= provides automatic alignment of the an entire section when the first line in that section is indented. Set to =nil= to disable.
 
 *** Colours
 
@@ -76,6 +76,7 @@ e.g. To highlight only the specific bash and python commands that we want, we ca
 **** 0.3
  - Indentation skips blank lines when aligning to previous
  - The root alignment now auto-aligns to all lines in the region when toggled.
+ - Optimised linediff function
 
 **** 0.2
  - Scope context check and simplified indent logic
