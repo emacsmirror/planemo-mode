@@ -142,8 +142,7 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--numlines (first second)
   "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
-  (- (line-number-at-pos (max first second))
-     (line-number-at-pos (min first second))))
+  (count-matches "\n" first second))
 
 (defun planemo--get-prevtag ()
   "Get the previous tag without changing position."
