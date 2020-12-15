@@ -202,7 +202,7 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
           (while
               (not (-let* (((align curr-tag nl) (planemo--jump-prevtag))
                            (last-tag (car tag-stack)))
-                     (cond ((eq nil curr-tag) ;; no prevtag means exceeded bounds
+                     (cond ((not curr-tag) ;; no prevtag means exceeded bounds
                             (user-error error-message))
                            ((planemo--tags-pairp curr-tag last-tag) ;;pop it from the stack
                             (prog1 nil (setq tag-stack (cdr tag-stack))))
