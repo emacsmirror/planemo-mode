@@ -34,36 +34,36 @@
   "Planemo customisable attributes"
   :group 'productivity)
 
-(defcustom planemo--xml-scope
+(defcustom planemo-xml-scope
   '("command" "configfile")
   "XML tag to perform Cheetah indentation logic within."
   :type 'list
   :group 'planemo)
 
-(defcustom planemo--root-align-region t
+(defcustom planemo-root-align-region t
   "Align all lines relative to root.  When the first line in a section is aligned it alters the root alignment, and by setting this value to t it aligns all other lines too."
   :type 'boolean
   :group 'planemo)
 
-(defcustom planemo--python-ops
+(defcustom planemo-python-ops
   '("or" "and" "in" "+" "-" "*" "/" "==" "!=")
   "Python operations used by Cheetah."
   :type 'list
   :group 'planemo)
 
-(defcustom planemo--python-fun
+(defcustom planemo-python-fun
   '("enumerate" "str" "int" "open")
   "Python functions used by Cheetah."
   :type 'list
   :group 'planemo)
 
-(defcustom planemo--bash-comms
+(defcustom planemo-bash-comms
   '("cat" "head" "tail" "awk" "cut" "ls" "grep" "echo" "touch")
   "Bash commands commonly found in the XML."
   :type 'list
   :group 'planemo)
 
-(defcustom planemo--bash-ops
+(defcustom planemo-bash-ops
   '("&&" ">" "<" ">>" "<<" "|" )
   "Bash operations commonly found in the XML."
   :type 'list
@@ -107,10 +107,10 @@ Must complement the ``planemo--start-tags''")
               indent-region-function 'planemo-indent-region)
   (make-face 'cheetah-variable-face)
   (let ((rx-keywords (eval `(rx (group "#" (or ,@planemo--all-tags) eow))))
-        (rx-bashcomms (eval `(rx bow (group (or ,@planemo--bash-comms)) eow)))
-        (rx-bashops (eval `(rx space (group (or ,@planemo--bash-ops)) space)))
-        (rx-pyops (eval `(rx (or bow space) (group (or ,@planemo--python-ops)) (or eow space))))
-        (rx-pyfun (eval `(rx (or bow space) (group (or ,@planemo--python-fun)) (or eow space)))))
+        (rx-bashcomms (eval `(rx bow (group (or ,@planemo-bash-comms)) eow)))
+        (rx-bashops (eval `(rx space (group (or ,@planemo-bash-ops)) space)))
+        (rx-pyops (eval `(rx (or bow space) (group (or ,@planemo-python-ops)) (or eow space))))
+        (rx-pyfun (eval `(rx (or bow space) (group (or ,@planemo-python-fun)) (or eow space)))))
     (font-lock-add-keywords
      nil
      `((,(rx (group bol (* space) "##" (* any) eol))
@@ -355,7 +355,7 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
 (defun planemo--within-validxml ()
   "Determine if current line is a root alignment line."
   (--> (planemo--get-parentxml)
-       (if (member (car it) planemo--xml-scope) it)))
+       (if (member (car it) planemo-xml-scope) it)))
 
 (defun planemo--get-parentxml ()
   "Retrieve the parent XML and the line difference between it and the current line."
@@ -373,7 +373,7 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
          (next-align (if (eq 0 planemo--root-alignment) prev-align 0)))
     (setq planemo--root-alignment next-align)
     (message "Root align set to %d" next-align)
-    (if planemo--root-align-region
+    (if planemo-root-align-region
         (let ((bor (line-beginning-position))
               (eor (save-excursion (re-search-forward (rx (or "]]>" "</")))
                                    (line-beginning-position))))
