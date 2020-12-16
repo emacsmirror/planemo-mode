@@ -41,7 +41,9 @@
   :group 'planemo)
 
 (defcustom planemo-root-align-region t
-  "Align all lines relative to root.  When the first line in a section is aligned it alters the root alignment, and by setting this value to t it aligns all other lines too."
+  "Align all lines relative to root.  When the first line in a
+section is aligned it alters the root alignment, and by setting
+this value to t it aligns all other lines too."
   :type 'boolean
   :group 'planemo)
 
@@ -77,11 +79,13 @@
 Must complement the ``planemo--start-tags''")
 
 (defconst planemo--middle-tags '("else" "else if")
-  "Defines the Cheetah tags that remain un-indented relative to a starting tag within a clause.")
+  "Defines the Cheetah tags that remain un-indented relative to a
+  starting tag within a clause.")
 
 (defconst planemo--other-tags
   '("set" "echo" "def" "include" "extends" "import" "from")
-  "Defines Cheetah tags that are nested like regular words relative to a starting tag.")
+  "Defines Cheetah tags that are nested like regular words
+  relative to a starting tag.")
 
 (defconst planemo--all-tags
   (append planemo--start-tags planemo--end-tags
@@ -98,7 +102,9 @@ Must complement the ``planemo--start-tags''")
   "Tags with the same alignment.")
 
 (defvar planemo--root-alignment 0
-  "This is the smallest possible left align value for the section, and can only be altered by ``planemo--toggle-root-alignment'' on the first non XML line.")
+  "This is the smallest possible left align value for the
+  section, and can only be altered by
+  ``planemo--toggle-root-alignment'' on the first non XML line.")
 
 (define-derived-mode planemo-mode nxml-mode "Pl[XML|Cheetah]"
   "Major mode for editing Galaxy XML files."
@@ -126,7 +132,9 @@ Must complement the ``planemo--start-tags''")
     (font-lock-mode 1)))
 
 (defun planemo--jump-prevtag ()
-  "Obtain the spacing and tag of to the previous tag.  Does not save the excursion because it may be used in succession to determine hierarchy."
+  "Obtain the spacing and tag of to the previous tag.  Does not
+save the excursion because it may be used in succession to
+determine hierarchy."
   (let* ((pointnow (point))
          (bounds
           (list (search-backward-regexp
@@ -141,7 +149,9 @@ Must complement the ``planemo--start-tags''")
       (list nil nil))))
 
 (defun planemo--numlines (first second)
-  "Calculate lines between FIRST and SECOND, taking into account the issue with calculating line numbers when SECOND is right at the beginning of the line."
+  "Calculate lines between FIRST and SECOND, taking into account
+the issue with calculating line numbers when SECOND is right at
+the beginning of the line."
   (count-matches "\n" first second))
 
 (defun planemo--get-prevtag ()
@@ -191,7 +201,8 @@ Must complement the ``planemo--start-tags''")
 
 (defun planemo--matchtag-back (tag)
   "Find the nearest previous start tag that would complement TAG.
-Here we stack tags as we find them and pop them off when consecutive tags pair up."
+Here we stack tags as we find them and pop them off when
+consecutive tags pair up."
   (let* ((wanted-tag (alist-get tag planemo--matching-pairs
                                 nil nil 'string=))
          (tag-stack nil)
@@ -227,7 +238,9 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
         (indent-line-to align))))
 
 (defun planemo--ind-nestunder (prev-align &optional cycle)
-  "Nest the current line under PREV-ALIGN.  If CYCLE is given, then cycle the indentation between either the root alignment, or nested below the above line."
+  "Nest the current line under PREV-ALIGN.  If CYCLE is given,
+then cycle the indentation between either the root alignment, or
+nested below the above line."
   ;;(message "outcome NestUnder: Nest under previous tag")
   (if cycle
       (let* ((indents (list (+ 4 prev-align) planemo--root-alignment))
@@ -357,7 +370,8 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
        (if (member (car it) planemo-xml-scope) it)))
 
 (defun planemo--get-parentxml ()
-  "Retrieve the parent XML and the line difference between it and the current line."
+  "Retrieve the parent XML and the line difference between it and
+the current line."
   (save-excursion
     (let* ((nowpos (point))
            (xmlpos (prog2 (nxml-backward-up-element) (point)))
@@ -367,7 +381,8 @@ Here we stack tags as we find them and pop them off when consecutive tags pair u
       (cons xmltag lndiff))))
 
 (defun planemo--toggle-root-alignment ()
-  "Toggle the first line after an XML tag, and set the ``planemo--root-alignment''."
+  "Toggle the first line after an XML tag, and set the
+``planemo--root-alignment''."
   (let* ((prev-align (save-excursion (forward-line -1) (current-indentation)))
          (next-align (if (eq 0 planemo--root-alignment) prev-align 0)))
     (setq planemo--root-alignment next-align)
