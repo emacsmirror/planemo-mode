@@ -78,7 +78,7 @@ this value to t it aligns all other lines too."
   "Defines the Cheetah tags for ending nested indentation.
 Must complement the ``planemo--start-tags''")
 
-(defconst planemo--middle-tags '("else" "else if")
+(defconst planemo--middle-tags '("else" "else if" "elif")
   "Defines the Cheetah tags that remain un-indented relative to a
   starting tag within a clause.")
 
@@ -121,7 +121,7 @@ Must complement the ``planemo--start-tags''")
      nil
      `((,(rx (group bol (* space) "##" (* any) eol))
         1 font-lock-comment-face)                   ;; comments
-       (,(rx (not "\\") (group "$" (? "{") (1+ (or alpha "." "_")) (? "}")))
+       (,(rx (not "\\") (group "$" (? "{") (1+ (or alnum "." "_")) (? "}")))
         1 font-lock-string-face)                    ;; cheetah vars
        (,rx-keywords 1 font-lock-constant-face)     ;; cheetah keywords
        (,rx-bashcomms 1 font-lock-reference-face)   ;; bash commands
